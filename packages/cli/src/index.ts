@@ -1,8 +1,11 @@
+#!/usr/bin/env node
+
 /**
  * @overview
  * @author AEPKILL
  * @created 2024-04-12 17:22:03
  */
+
 import "reflect-metadata";
 
 import { CLI, Shim } from "clime";
