@@ -1,11 +1,14 @@
 {
   "name": "@miniprogram-track/cli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
   "bin": {
     "miniprogram-track": "dist/index.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "pnpm clear && tsc -b ./tsconfig.json",
     "dev": "pnpm clear && tsc -b ./tsconfig.json -w",

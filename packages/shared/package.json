@@ -1,6 +1,6 @@
 {
   "name": "@miniprogram-track/shared",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "author": "AEPKILL",
   "main": "dist/index.js",
@@ -13,6 +13,9 @@
       "default": "./tsconfig.base.json"
     }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "clear": "rimraf dist",

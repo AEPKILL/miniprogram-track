@@ -1,6 +1,6 @@
 {
   "name": "@miniprogram-track/wechat",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "dist/index.js",
   "exports": {
@@ -9,6 +9,9 @@
       "types": "./dist/index.d.ts"
     }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "echo 'build wechat'",
     "prepare": "ts-patch install",
