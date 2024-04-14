@@ -1,0 +1,21 @@
+{
+  "extends": "@miniprogram-track/shared/tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "declaration": true,
+    "baseUrl": "src",
+    "paths": {
+      "@/*": ["*"]
+    }
+  },
+  "include": ["src"],
+  "references": [
+    {
+      "path": "../shared"
+    },
+    {
+      "path": "../wechat"
+    }
+  ]
+}

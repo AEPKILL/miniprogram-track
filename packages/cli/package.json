@@ -1,0 +1,32 @@
+{
+  "name": "@miniprogram-track/cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "miniprogram-track": "dist/index.js"
+  },
+  "scripts": {
+    "build": "pnpm clear && tsc -b ./tsconfig.json",
+    "dev": "pnpm clear && tsc -b ./tsconfig.json -w",
+    "clear": "rimraf dist&&pnpm -F @miniprogram-track/shared clear&&pnpm -F @miniprogram-track/wechat clear",
+    "prepare": "ts-patch install"
+  },
+  "keywords": [],
+  "author": "AEPKILL",
+  "license": "MIT",
+  "dependencies": {
+    "@miniprogram-track/shared": "workspace:^",
+    "@miniprogram-track/wechat": "workspace:^",
+    "@types/node": "^20.12.7",
+    "clime": "^0.5.16",
+    "husky-di": "^1.0.10",
+    "reflect-metadata": "^0.2.2"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.5",
+    "ts-patch": "^3.1.2",
+    "typescript": "^5.4.5",
+    "typescript-transform-paths": "^3.4.7"
+  }
+}
