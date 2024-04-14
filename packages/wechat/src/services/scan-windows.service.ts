@@ -31,7 +31,7 @@ export class ScanWindowsService implements IScan {
 
       return {
         ...it,
-        path: miniprogramPath,
+        miniprogramDir: miniprogramPath,
         wxapkgPaths: wxapkgPaths.map((it) => path.join(miniprogramPath, it))
       };
     });

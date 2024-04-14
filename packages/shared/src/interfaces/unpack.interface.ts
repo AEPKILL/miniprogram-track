@@ -1,8 +1,9 @@
-/*
+/**
  * @overview
  * @author AEPKILL
- * @created 2024-04-12 12:27:07
+ * @created 2024-04-14 14:47:16
  */
+
 import { createServiceIdentifier } from "husky-di";
 
 export interface UnpackInfo {
@@ -10,7 +11,8 @@ export interface UnpackInfo {
 }
 
 export interface UnpackOptions {
-  pkgPath: string;
+  pkgPath?: string;
+  miniprogramDir?: string;
 }
 
 export interface IUnPack {

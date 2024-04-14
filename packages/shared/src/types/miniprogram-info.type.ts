@@ -18,7 +18,7 @@ export type MiniprogramInfo = {
   authorId: string;
 
   /** 小程序路径 */
-  path: string;
+  miniprogramDir: string;
 
   /** 小程序头像 */
   avatar: string;

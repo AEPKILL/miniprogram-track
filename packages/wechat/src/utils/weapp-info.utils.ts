@@ -8,7 +8,7 @@ import { MiniprogramInfo } from "@miniprogram-track/shared";
 
 export async function getPartialMiniprogramInfoByAppid(
   appid: string
-): Promise<Omit<MiniprogramInfo, "wxapkgPaths" | "path">> {
+): Promise<Omit<MiniprogramInfo, "wxapkgPaths" | "miniprogramDir">> {
   type ServerResponse = {
     nickname: string;
     username: string;
@@ -29,8 +29,7 @@ export async function getPartialMiniprogramInfoByAppid(
   })
     .then((r) => r.json())
     .then((r) => r.data || {})
-    .catch((e) => {
-      console.log("error:", e);
+    .catch(() => {
       return {};
     })) as ServerResponse;
 

@@ -19,6 +19,7 @@
     "@miniprogram-track/shared": "workspace:^",
     "@miniprogram-track/wechat": "workspace:^",
     "@types/node": "^20.12.7",
+    "chalk": "^4.1.2",
     "clime": "^0.5.16",
     "husky-di": "^1.0.10",
     "reflect-metadata": "^0.2.2"
