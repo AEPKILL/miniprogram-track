@@ -15,6 +15,13 @@ class UnpackCommandOptions
   implements UnpackOptions
 {
   @option<string>({
+    name: "appid",
+    description: "appid",
+    required: true
+  })
+  appid!: string;
+
+  @option<string>({
     name: "pkgPath",
     description: "小程序包的路径"
   })
@@ -25,6 +32,28 @@ class UnpackCommandOptions
     description: "小程序目录"
   })
   miniprogramDir?: string;
+
+  @option<string>({
+    name: "targetDir",
+    description: "解包目标目录"
+  })
+  targetDir?: string;
+
+  @option<boolean>({
+    name: "restoreCode",
+    description: "是否尝试还原原始代码结构",
+    default: true,
+    toggle: true
+  })
+  restoreCode?: boolean;
+
+  @option<boolean>({
+    name: "formatCode",
+    description: "是否尝试格式化(美化)代码",
+    default: true,
+    toggle: true
+  })
+  formatCode?: boolean;
 }
 
 @command({
@@ -40,9 +69,6 @@ export default class UnpackCommand extends Command {
       throw new ExpectedError(`请输入  --pkgPath 或 --miniprogramDir 参数`);
     }
 
-    await container.resolve(IUnPack).unpack({
-      pkgPath,
-      miniprogramDir
-    });
+    await container.resolve(IUnPack).unpack(options);
   }
 }

@@ -15,6 +15,13 @@ Miniprogram track 是用于小程序安全审计的工具包
 - 1. 使用 `miniprogram-track scan` 命令扫描小程序
 - 2. 使用 `miniprogram-track unpack --pkgPath <pkgPath>` 命令解包小程序，解包后的小程序会在当前目录下生成一个名为 `<appid>` 的文件夹
 
+## Roadmap
+
+- [x] windows 端扫描小程序
+- [x] 反编译小程序
+- [ ] 还原小程序目录结构
+- [ ] windows 端打开小程序调试器
+
 ## 参考资料
 
 - [微信小程序源码阅读笔记1](https://lrdcq.com/me/read.php/66.htm)

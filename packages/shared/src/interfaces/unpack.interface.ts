@@ -11,8 +11,13 @@ export interface UnpackInfo {
 }
 
 export interface UnpackOptions {
+  appid: string;
   pkgPath?: string;
   miniprogramDir?: string;
+  targetDir?: string;
+
+  restoreCode?: boolean;
+  formatCode?: boolean;
 }
 
 export interface IUnPack {

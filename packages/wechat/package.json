@@ -19,7 +19,9 @@
   "license": "MIT",
   "dependencies": {
     "@miniprogram-track/shared": "workspace:^",
+    "@types/fs-extra": "^11.0.4",
     "@types/node": "^20.12.7",
+    "fs-extra": "^11.2.0",
     "glob": "^10.3.12",
     "husky-di": "^1.0.10",
     "regedit": "^5.1.3"
