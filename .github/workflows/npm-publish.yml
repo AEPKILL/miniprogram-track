@@ -25,6 +25,6 @@ jobs:
       - run: pnpm install
       - run: pnpm lint
       - run: pnpm build
-      - run: pnpm publish
+      - run: pnpm publish -r
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
