@@ -9,6 +9,8 @@ import { injectable } from "husky-di";
 import fs from "fs";
 import { WxapkgUnpack } from "@/classes/wxapkg-unpack";
 import path from "path";
+import { globSync } from "glob";
+import { FileBundler } from "@/classes/file-bundler";
 
 @injectable()
 export class UnpackWindowsService implements IUnPack {
@@ -16,22 +18,41 @@ export class UnpackWindowsService implements IUnPack {
     const {
       appid,
       pkgPath,
+      miniprogramDir,
       targetDir = path.join(process.cwd(), appid)
     } = options;
 
-    if (!pkgPath) {
-      throw new Error("pkgPath is required");
+    const wxapkgPaths: string[] = [];
+
+    if (!miniprogramDir) {
+      if (!pkgPath) {
+        throw new Error("pkgPath is required");
+      }
+      if (!fs.existsSync(pkgPath)) {
+        throw new Error("pkgPath is not exists");
+      }
+      wxapkgPaths.push(pkgPath);
+    } else {
+      for (const it of globSync(["**/*.wxapkg"], {
+        cwd: miniprogramDir
+      })) {
+        wxapkgPaths.push(path.join(miniprogramDir, it));
+      }
     }
 
-    if (!fs.existsSync(pkgPath)) {
-      throw new Error("pkgPath is not exists");
+    const miniprogramOriginalBundler = new FileBundler();
+    for (const it of wxapkgPaths) {
+      const wxapkg = new WxapkgUnpack({ pkgPath: it, appid });
+      const wxapkgBundler = wxapkg.unpack();
+      for (const it of wxapkgBundler.filesList) {
+        if (miniprogramOriginalBundler.isExist(it.name)) {
+          console.warn(`${it.name} is exist, overwrite it`);
+        }
+        miniprogramOriginalBundler.append(it);
+      }
     }
 
-    const wxapkg = new WxapkgUnpack({ pkgPath, appid });
-
-    wxapkg.unpack({
-      targetDir
-    });
+    miniprogramOriginalBundler.saveTo(targetDir);
 
     return {
       path: targetDir

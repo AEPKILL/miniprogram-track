@@ -5,8 +5,8 @@
  */
 import fs from "fs-extra";
 import { pbkdf2Sync, createDecipheriv } from "crypto";
-import path from "path";
 import { Offset } from "./offset";
+import { FileBundler } from "./file-bundler";
 
 export interface WxapkgFileHeader {
   firstMask: number;
@@ -34,21 +34,6 @@ export interface WxapkgUnpackOptions {
   pkgPath: string;
 }
 
-export interface UnpackOptions {
-  /** 解包目标路径 */
-  targetDir: string;
-  /**
-   * 是否还原代码
-   * @default false
-   * */
-  restoreCode?: boolean;
-  /**
-   * 是否格式化代码
-   * @default false
-   * */
-  formatCode?: boolean;
-}
-
 export class WxapkgUnpack {
   readonly pkgPath: string;
   readonly buffer: Buffer;
@@ -68,28 +53,27 @@ export class WxapkgUnpack {
     }
   }
 
-  unpack(options: UnpackOptions): void {
+  unpack(): FileBundler {
     const metadata = WxapkgUnpack.getFileMetadata(this.buffer);
     const { header } = metadata;
-    const filename = path.parse(this.pkgPath).name;
-    const targetDir = path.join(options.targetDir, filename);
     const isValid =
       header.firstMask == WxapkgUnpack.pkgFirstMaskConst &&
       header.lastMark == WxapkgUnpack.pkgLastMaskConst;
+    const bundler = new FileBundler();
+
     if (!isValid) {
       throw new Error(`${this.pkgPath} 不是一个有效的 wxapkg 文件`);
     }
 
-    fs.ensureDirSync(targetDir);
     for (const chunk of metadata.chunks) {
-      const filePath = path.join(targetDir, chunk.name);
-      const fileDir = path.parse(filePath).dir;
-      fs.ensureDirSync(fileDir);
-      fs.writeFileSync(
-        filePath,
-        this.buffer.subarray(chunk.offset, chunk.offset + chunk.size)
-      );
+      bundler.append({
+        name: chunk.name,
+        buffer: this.buffer.subarray(chunk.offset, chunk.offset + chunk.size),
+        size: chunk.size
+      });
     }
+
+    return bundler;
   }
 
   static readonly pkgFirstMaskConst = 0xbe;

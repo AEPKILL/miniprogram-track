@@ -12,7 +12,7 @@ export interface BundlerFile {
   size: number;
 }
 
-export class Bundler {
+export class FileBundler {
   #files: Record<string, BundlerFile> = {};
 
   get files(): Record<string, BundlerFile> {
@@ -33,6 +33,14 @@ export class Bundler {
 
   remove(name: string): void {
     delete this.#files[name];
+  }
+
+  clone(): FileBundler {
+    const bundler = new FileBundler();
+    for (const file of this.filesList) {
+      bundler.append(file);
+    }
+    return bundler;
   }
 
   saveTo(targetDir: string): void {

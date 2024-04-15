@@ -25,6 +25,7 @@
     "chalk": "^4.1.2",
     "clime": "^0.5.16",
     "husky-di": "^1.0.10",
+    "ora": "^5.4.1",
     "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {

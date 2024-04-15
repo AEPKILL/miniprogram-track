@@ -5,11 +5,11 @@
  */
 
 import { command, Command, ExpectedError, metadata, option } from "clime";
+import ora from "ora";
 
 import { CommandCommonOptions } from "@/clime/command-common-options.js";
 import { RegisterService } from "@/decorators/register-service.decorator";
 import { container, IUnPack, UnpackOptions } from "@miniprogram-track/shared";
-import { throwExpectedErrorAsync } from "@/utils/exception.utils";
 
 class UnpackCommandOptions
   extends CommandCommonOptions
@@ -70,8 +70,19 @@ export default class UnpackCommand extends Command {
       throw new ExpectedError(`请输入  --pkgPath 或 --miniprogramDir 参数`);
     }
 
-    await throwExpectedErrorAsync(() =>
-      container.resolve(IUnPack).unpack(options)
-    );
+    const spinner = ora({
+      discardStdin: false
+    });
+
+    spinner.text = "解包中...";
+    spinner.start();
+    try {
+      const unpackInfo = await container.resolve(IUnPack).unpack(options);
+      spinner.text = `解包完成，已解包文件到: ${unpackInfo.path}`;
+      spinner.succeed();
+    } catch (e) {
+      spinner.text = "解包失败";
+      spinner.fail();
+    }
   }
 }
