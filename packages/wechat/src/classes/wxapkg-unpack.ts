@@ -121,12 +121,9 @@ export class WxapkgUnpack {
 
     for (let i = 0; i < fileCount; i++) {
       const nameLength = view.getUint32(offset.forward(4));
-
-      let name = "";
-      for (let i = 0; i < nameLength; i++) {
-        name += String.fromCharCode(view.getUint8(offset.forward(1)));
-      }
-
+      const name = buffer
+        .subarray(offset.index, (offset.forward(nameLength), offset.index))
+        .toString();
       const chunk: WxapkgChunk = {
         name,
         nameLength,

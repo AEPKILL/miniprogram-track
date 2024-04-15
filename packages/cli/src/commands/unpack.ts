@@ -9,6 +9,7 @@ import { command, Command, ExpectedError, metadata, option } from "clime";
 import { CommandCommonOptions } from "@/clime/command-common-options.js";
 import { RegisterService } from "@/decorators/register-service.decorator";
 import { container, IUnPack, UnpackOptions } from "@miniprogram-track/shared";
+import { throwExpectedErrorAsync } from "@/utils/exception.utils";
 
 class UnpackCommandOptions
   extends CommandCommonOptions
@@ -69,6 +70,8 @@ export default class UnpackCommand extends Command {
       throw new ExpectedError(`请输入  --pkgPath 或 --miniprogramDir 参数`);
     }
 
-    await container.resolve(IUnPack).unpack(options);
+    await throwExpectedErrorAsync(() =>
+      container.resolve(IUnPack).unpack(options)
+    );
   }
 }
