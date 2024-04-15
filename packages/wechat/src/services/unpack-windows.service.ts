@@ -11,6 +11,7 @@ import { WxapkgUnpack } from "@/classes/wxapkg-unpack";
 import path from "path";
 import { globSync } from "glob";
 import { FileBundler } from "@/classes/file-bundler";
+import { RestoreCode } from "@/classes/restore-code";
 
 @injectable()
 export class UnpackWindowsService implements IUnPack {
@@ -19,6 +20,7 @@ export class UnpackWindowsService implements IUnPack {
       appid,
       pkgPath,
       miniprogramDir,
+      restoreCode,
       targetDir = path.join(process.cwd(), appid)
     } = options;
 
@@ -52,7 +54,11 @@ export class UnpackWindowsService implements IUnPack {
       }
     }
 
-    miniprogramOriginalBundler.saveTo(targetDir);
+    const finallyBundler = restoreCode
+      ? await new RestoreCode(miniprogramOriginalBundler).restore()
+      : miniprogramOriginalBundler;
+
+    finallyBundler.saveTo(targetDir);
 
     return {
       path: targetDir

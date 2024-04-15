@@ -6,6 +6,10 @@ Miniprogram track 是用于小程序安全审计的工具包
 
 本工具仅用于安全审计。用户在使用此工具时，应遵守所有适用的法律和法规。用户需对其使用此工具的行为负责，作者不承担因用户的行为产生的任何法律责任。
 
+## 预览
+
+![example](./docs/assets/images/example.gif)
+
 ## 安装
 
  `npm install @miniprogram-track/cli -g`
@@ -17,10 +21,12 @@ Miniprogram track 是用于小程序安全审计的工具包
 
 ## Roadmap
 
-- [x] windows 端扫描小程序
-- [x] 反编译小程序
-- [ ] 还原小程序目录结构
-- [ ] windows 端打开小程序调试器
+- 微信小程序
+  - [x] windows 端扫描小程序
+  - [x] 反编译小程序
+  - [x] 反编译小程序分包
+  - [ ] 还原小程序目录结构
+  - [ ] windows 端打开小程序调试器
 
 ## 参考资料
 
