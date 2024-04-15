@@ -10,8 +10,8 @@ import fs from "fs";
 import { WxapkgUnpack } from "@/classes/wxapkg-unpack";
 import path from "path";
 import { globSync } from "glob";
-import { FileBundler } from "@/classes/file-bundler";
-import { RestoreCode } from "@/classes/restore-code";
+import { FileBundle } from "@/classes/file-Bundle";
+import { CodeReverser } from "@/classes/code-reverser";
 
 @injectable()
 export class UnpackWindowsService implements IUnPack {
@@ -42,23 +42,23 @@ export class UnpackWindowsService implements IUnPack {
       }
     }
 
-    const miniprogramOriginalBundler = new FileBundler();
+    const miniprogramOriginalBundle = new FileBundle();
     for (const it of wxapkgPaths) {
       const wxapkg = new WxapkgUnpack({ pkgPath: it, appid });
-      const wxapkgBundler = wxapkg.unpack();
-      for (const it of wxapkgBundler.filesList) {
-        if (miniprogramOriginalBundler.isExist(it.name)) {
+      const wxapkgBundle = wxapkg.unpack();
+      for (const it of wxapkgBundle.filesList) {
+        if (miniprogramOriginalBundle.isExist(it.name)) {
           console.warn(`${it.name} is exist, overwrite it`);
         }
-        miniprogramOriginalBundler.append(it);
+        miniprogramOriginalBundle.append(it);
       }
     }
 
-    const finallyBundler = restoreCode
-      ? await new RestoreCode(miniprogramOriginalBundler).restore()
-      : miniprogramOriginalBundler;
+    const finallyBundle = restoreCode
+      ? await new CodeReverser(miniprogramOriginalBundle).reverse()
+      : miniprogramOriginalBundle;
 
-    finallyBundler.saveTo(targetDir);
+    await finallyBundle.saveTo(targetDir);
 
     return {
       path: targetDir

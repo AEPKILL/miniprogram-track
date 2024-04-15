@@ -17,7 +17,6 @@ export interface UnpackOptions {
   targetDir?: string;
 
   restoreCode?: boolean;
-  formatCode?: boolean;
 }
 
 export interface IUnPack {

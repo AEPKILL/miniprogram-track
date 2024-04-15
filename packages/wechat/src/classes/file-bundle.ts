@@ -6,20 +6,20 @@
 import fs from "fs-extra";
 import path from "path";
 
-export interface BundlerFile {
+export interface BundleFile {
   name: string;
   buffer: Buffer;
   size: number;
 }
 
-export class FileBundler {
-  #files: Record<string, BundlerFile> = {};
+export class FileBundle {
+  #files: Record<string, BundleFile> = {};
 
-  get files(): Record<string, BundlerFile> {
+  get files(): Record<string, BundleFile> {
     return this.#files;
   }
 
-  get filesList(): BundlerFile[] {
+  get filesList(): BundleFile[] {
     return Object.values(this.#files);
   }
 
@@ -27,28 +27,32 @@ export class FileBundler {
     return name in this.#files;
   }
 
-  append(file: BundlerFile): void {
+  append(file: BundleFile): void {
     this.#files[file.name] = file;
+  }
+
+  get(name: string): BundleFile | undefined {
+    return this.#files[name];
   }
 
   remove(name: string): void {
     delete this.#files[name];
   }
 
-  clone(): FileBundler {
-    const bundler = new FileBundler();
+  clone(): FileBundle {
+    const Bundle = new FileBundle();
     for (const file of this.filesList) {
-      bundler.append(file);
+      Bundle.append(file);
     }
-    return bundler;
+    return Bundle;
   }
 
-  saveTo(targetDir: string): void {
+  async saveTo(targetDir: string): Promise<void> {
     for (const file of this.filesList) {
       const filePath = path.join(targetDir, file.name);
       const fileDir = path.parse(filePath).dir;
-      fs.ensureDirSync(fileDir);
-      fs.writeFileSync(filePath, file.buffer);
+      await fs.ensureDir(fileDir);
+      await fs.writeFile(filePath, file.buffer);
     }
   }
 }

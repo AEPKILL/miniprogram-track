@@ -47,14 +47,6 @@ class UnpackCommandOptions
     toggle: true
   })
   restoreCode?: boolean;
-
-  @option<boolean>({
-    name: "formatCode",
-    description: "是否尝试格式化(美化)代码",
-    default: true,
-    toggle: true
-  })
-  formatCode?: boolean;
 }
 
 @command({
@@ -78,10 +70,10 @@ export default class UnpackCommand extends Command {
     spinner.start();
     try {
       const unpackInfo = await container.resolve(IUnPack).unpack(options);
-      spinner.text = `解包完成，已解包文件到: ${unpackInfo.path}`;
+      spinner.text = `解包完成，解包文件到: ${unpackInfo.path}`;
       spinner.succeed();
-    } catch (e) {
-      spinner.text = "解包失败";
+    } catch (e: any) {
+      spinner.text = `解包识别: ${e.message || "未知原因"}`;
       spinner.fail();
     }
   }
