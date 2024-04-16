@@ -32,7 +32,7 @@ Miniprogram track 是用于小程序安全审计的工具包
 
 - [微信小程序源码阅读笔记1](https://lrdcq.com/me/read.php/66.htm)
 - [wxapkg - 微信小程序反编译工具，.wxapkg 文件扫描 + 解密 + 解包工具](https://github.com/wux1an/wxapkg)
-- [将微信小程序(.wxapkg)解包及将包内内容还原为"编译"前的内容的"反编译"器](https://zhuanlan.zhihu.com/p/558998021)
+- [将微信小程序(.wxapkg)解包及将包内内容还原为"编译"前的内容的"反编译"器](https://bbs.kanxue.com/thread-225289.htm)
 - [SS.UnWxapkg](https://github.com/chenrensong/SS.UnWxapkg)
 - [手把手教你—微信小程序抓包解密与反编译工具的使用全过程（超详细）](https://juejin.cn/post/7312678013559636006)
 - [【Web实战】零基础微信小程序逆向](https://forum.butian.net/share/2570)
@@ -41,7 +41,8 @@ Miniprogram track 是用于小程序安全审计的工具包
 - [PcWeChatHooK](https://github.com/zmrbak/PcWeChatHooK)
 - [WeChat-Hook](https://github.com/aixed/WeChat-Hook)
 - [RevokeMsgPatcher](https://github.com/huiyadanli/RevokeMsgPatcher)
-  
+- [unveilr-v2.0.0](https://github.com/junxiaqiao/unveilr-v2.0.0)
+
 ## License
 
 MIT © AEPKILL

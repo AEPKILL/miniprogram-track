@@ -7,9 +7,14 @@ import fs from "fs-extra";
 import path from "path";
 
 export interface BundleFile {
-  name: string;
+  path: string;
   buffer: Buffer;
-  size: number;
+  size?: number;
+}
+
+function addRootPrefix(path: string): string {
+  if (path[0] === "/") return path;
+  return `/${path}`;
 }
 
 export class FileBundle {
@@ -23,20 +28,20 @@ export class FileBundle {
     return Object.values(this.#files);
   }
 
-  isExist(name: string): boolean {
-    return name in this.#files;
+  isExist(path: string): boolean {
+    return addRootPrefix(path) in this.#files;
   }
 
   append(file: BundleFile): void {
-    this.#files[file.name] = file;
+    this.#files[addRootPrefix(file.path)] = file;
   }
 
-  get(name: string): BundleFile | undefined {
-    return this.#files[name];
+  get(path: string): BundleFile | undefined {
+    return this.#files[addRootPrefix(path)];
   }
 
-  remove(name: string): void {
-    delete this.#files[name];
+  remove(path: string): void {
+    delete this.#files[addRootPrefix(path)];
   }
 
   clone(): FileBundle {
@@ -49,8 +54,14 @@ export class FileBundle {
 
   async saveTo(targetDir: string): Promise<void> {
     for (const file of this.filesList) {
-      const filePath = path.join(targetDir, file.name);
+      const filePath = path.join(targetDir, file.path);
       const fileDir = path.parse(filePath).dir;
+      const exists = await fs.exists(filePath);
+
+      if (exists) {
+        console.log(`WARN: file ${filePath} already exists, overwrite it`);
+      }
+
       await fs.ensureDir(fileDir);
       await fs.writeFile(filePath, file.buffer);
     }

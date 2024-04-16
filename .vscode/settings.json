@@ -5,7 +5,9 @@
     "regedit",
     "Weapp",
     "wechat",
-    "wxapkg"
+    "wxapkg",
+    "wxml",
+    "wxss"
   ],
   "editor.formatOnSave": true
 }

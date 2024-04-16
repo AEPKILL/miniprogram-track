@@ -4,14 +4,14 @@
  * @created 2024-04-12 17:59:49
  */
 
-import { IUnPack, UnpackInfo, UnpackOptions } from "@miniprogram-track/shared";
-import { injectable } from "husky-di";
 import fs from "fs";
-import { WxapkgUnpack } from "@/classes/wxapkg-unpack";
-import path from "path";
 import { globSync } from "glob";
-import { FileBundle } from "@/classes/file-Bundle";
+import { injectable } from "husky-di";
+import path from "path";
+
 import { CodeReverser } from "@/classes/code-reverser";
+import { WxapkgUnpack } from "@/classes/wxapkg-unpack";
+import { IUnPack, UnpackInfo, UnpackOptions } from "@miniprogram-track/shared";
 
 @injectable()
 export class UnpackWindowsService implements IUnPack {
@@ -41,24 +41,20 @@ export class UnpackWindowsService implements IUnPack {
         wxapkgPaths.push(path.join(miniprogramDir, it));
       }
     }
-
-    const miniprogramOriginalBundle = new FileBundle();
+    console.log("restore code", restoreCode);
     for (const it of wxapkgPaths) {
       const wxapkg = new WxapkgUnpack({ pkgPath: it, appid });
       const wxapkgBundle = wxapkg.unpack();
-      for (const it of wxapkgBundle.filesList) {
-        if (miniprogramOriginalBundle.isExist(it.name)) {
-          console.warn(`${it.name} is exist, overwrite it`);
-        }
-        miniprogramOriginalBundle.append(it);
+      const finallyBundle = restoreCode
+        ? await new CodeReverser(wxapkgBundle).reverse()
+        : wxapkgBundle;
+
+      if (restoreCode) {
+        await finallyBundle.saveTo(path.join(targetDir));
+      } else {
+        await finallyBundle.saveTo(path.join(targetDir, path.parse(it).name));
       }
     }
-
-    const finallyBundle = restoreCode
-      ? await new CodeReverser(miniprogramOriginalBundle).reverse()
-      : miniprogramOriginalBundle;
-
-    await finallyBundle.saveTo(targetDir);
 
     return {
       path: targetDir

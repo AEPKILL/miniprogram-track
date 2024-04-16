@@ -4,21 +4,45 @@
  * @created 2024-04-15 11:34:57
  */
 
-import { FileBundle } from "@/classes/file-Bundle";
-import { reverseAppJson } from "./_reverse-app-json";
+import { FileBundle } from "@/classes/file-bundle";
+import { ComponentSource, ICodeReverser } from "./_type";
+import { reverseAppJson } from "./pipelines/reverse-app-json";
+import { reverseJs } from "./pipelines/reverse-js";
+import { reverseWxss } from "./pipelines/reverse-wxss";
+import { reverseWxml } from "./pipelines/reverse-wxml";
 
-export class CodeReverser {
-  #originalBundle: FileBundle;
-  #restoreBundle: FileBundle;
+export class CodeReverser implements ICodeReverser {
+  originalBundle: FileBundle;
+  restoreBundle: FileBundle;
+  appConfig: Record<string, any>;
+  pages: Record<string, ComponentSource>;
 
-  constructor(Bundle: FileBundle) {
-    this.#originalBundle = Bundle;
-    this.#restoreBundle = new FileBundle();
+  constructor(bundle: FileBundle) {
+    this.originalBundle = bundle;
+    this.restoreBundle = new FileBundle();
+
+    const appConfigContent = this.originalBundle
+      .get("/app-config.json")
+      ?.buffer.toString();
+
+    if (appConfigContent) {
+      this.appConfig = JSON.parse(appConfigContent);
+    } else {
+      this.appConfig = {};
+    }
+
+    this.pages = {};
   }
 
   async reverse(): Promise<FileBundle> {
-    reverseAppJson(this.#originalBundle, this.#restoreBundle);
+    if (this.appConfig.pages) {
+      reverseAppJson(this);
+    }
 
-    return this.#restoreBundle;
+    reverseJs(this);
+    reverseWxss(this);
+    reverseWxml(this);
+
+    return this.restoreBundle;
   }
 }

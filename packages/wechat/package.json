@@ -21,7 +21,13 @@
   "author": "AEPKILL",
   "license": "MIT",
   "dependencies": {
+    "@babel/core": "^7.24.4",
+    "@babel/generator": "^7.24.4",
+    "@babel/traverse": "^7.24.1",
     "@miniprogram-track/shared": "workspace:^",
+    "@types/babel__core": "^7.20.5",
+    "@types/babel__generator": "^7.6.8",
+    "@types/babel__traverse": "^7.20.5",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^20.12.7",
     "fs-extra": "^11.2.0",

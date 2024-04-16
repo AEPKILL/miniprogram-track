@@ -6,7 +6,7 @@
 import fs from "fs-extra";
 import { pbkdf2Sync, createDecipheriv } from "crypto";
 import { Offset } from "./offset";
-import { FileBundle } from "./file-Bundle";
+import { FileBundle } from "./file-bundle";
 
 export interface WxapkgFileHeader {
   firstMask: number;
@@ -67,7 +67,7 @@ export class WxapkgUnpack {
 
     for (const chunk of metadata.chunks) {
       Bundle.append({
-        name: chunk.name,
+        path: chunk.name,
         buffer: this.buffer.subarray(chunk.offset, chunk.offset + chunk.size),
         size: chunk.size
       });
