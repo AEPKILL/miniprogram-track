@@ -16,7 +16,15 @@ export type ComponentSource = {
 export interface ICodeReverser {
   readonly originalBundle: FileBundle;
   readonly restoreBundle: FileBundle;
-  readonly appConfig: Record<string, any>;
+  readonly appConfig: Record<string, any> | null;
+  readonly pages: Record<string, ComponentSource>;
+
+  readonly appServiceParsed: babel.ParseResult | null;
+  readonly workersParsed: babel.ParseResult | null;
+  readonly appWxssParsed: babel.ParseResult | null;
+
+  readonly gameParsed: babel.ParseResult | null;
+  readonly gameConfig: Record<string, any> | null;
 }
 
 export type ReversePipeline = (codeReverser: ICodeReverser) => void;

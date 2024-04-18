@@ -4,36 +4,34 @@
  * @created 2024-04-15 22:00:38
  */
 
-import { ReversePipeline } from "../_type";
+import { FileBundle } from "@/classes/file-bundle";
 import * as babel from "@babel/core";
-import traverse from "@babel/traverse";
+import { join } from "path";
+
 import generator from "@babel/generator";
+import traverse from "@babel/traverse";
 
-export const reverseJs: ReversePipeline = ({
-  originalBundle,
-  restoreBundle
-}) => {
-  const appService = originalBundle.get("app-service.js");
-  if (!appService) {
-    console.warn("app-service.js not found, skip reverse javascript source");
-    return;
-  }
+import { ReversePipeline } from "../_type";
 
-  const appServiceContent = appService.buffer.toString();
-  const ast = babel.parse(appServiceContent)!;
-
+function reverseJsInBundleFromParsedResult(
+  ast: babel.ParseResult,
+  restoreBundle: FileBundle
+): void {
   traverse(ast, {
     CallExpression(path) {
-      if (
+      const isDefineFunctionCall =
         (path.node.callee as babel.types.V8IntrinsicIdentifier).name ===
-          "define" &&
-        path.parentPath.type === "ExpressionStatement"
-      ) {
+          "define" && path.parentPath?.parentPath?.type === "Program";
+      if (isDefineFunctionCall) {
         const args = path.node.arguments;
-        const fileName = (args[0] as babel.types.StringLiteral).value;
         const functionContent = (args[1] as babel.types.FunctionExpression).body
           .body;
         const codes = functionContent.map((it) => generator(it).code);
+
+        let fileName = (args[0] as babel.types.StringLiteral).value;
+        if (fileName.startsWith("/__plugin__") && !fileName.endsWith(".js")) {
+          fileName = join(fileName, "index.js");
+        }
 
         restoreBundle.append({
           path: fileName,
@@ -42,4 +40,21 @@ export const reverseJs: ReversePipeline = ({
       }
     }
   });
+}
+
+export const reverseJs: ReversePipeline = ({
+  appServiceParsed,
+  gameParsed,
+  workersParsed,
+  restoreBundle
+}) => {
+  if (appServiceParsed) {
+    reverseJsInBundleFromParsedResult(appServiceParsed, restoreBundle);
+  }
+  if (gameParsed) {
+    reverseJsInBundleFromParsedResult(gameParsed, restoreBundle);
+  }
+  if (workersParsed) {
+    reverseJsInBundleFromParsedResult(workersParsed, restoreBundle);
+  }
 };

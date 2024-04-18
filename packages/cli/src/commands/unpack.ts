@@ -73,7 +73,7 @@ export default class UnpackCommand extends Command {
       spinner.text = `解包完成，已解包文件到: ${unpackInfo.path}`;
       spinner.succeed();
     } catch (e: any) {
-      spinner.text = `解包识别: ${e.message || "未知原因"}`;
+      spinner.text = `解包失败: ${e.message || "未知原因"}`;
       spinner.fail();
     }
   }

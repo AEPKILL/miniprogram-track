@@ -6,6 +6,7 @@
 
 import { ReversePipeline } from "../_type";
 import path from "path";
+import vm from "vm";
 
 type MarkupOptions = {
   suffix: string;
@@ -33,15 +34,16 @@ function makeup(file: Array<string | any[]>, opt: MarkupOptions): string {
   return res.replace(/body\s*{/g, "page{");
 }
 
+// TODO  有点慢，后续改为从 wxssParsed 中提取
 export const reverseWxss: ReversePipeline = ({
   originalBundle,
   restoreBundle
 }) => {
   const appWxss = originalBundle.get("app-wxss.js");
   if (!appWxss) {
-    console.warn("app-service.js not found, skip reverse wxss source");
     return;
   }
+
   const wxssContent = appWxss.buffer
     .toString()
     .replace(/var\s*setCssToHead\s*=/, "var setCssToHead2 =")
@@ -50,8 +52,8 @@ export const reverseWxss: ReversePipeline = ({
       "var __COMMON_STYLESHEETS__2 ="
     );
 
-  new Function("__COMMON_STYLESHEETS__", "setCssToHead", "window", wxssContent)(
-    new Proxy(
+  const context = vm.createContext({
+    __COMMON_STYLESHEETS__: new Proxy(
       {},
       {
         set(target, p, value, receiver) {
@@ -66,12 +68,11 @@ export const reverseWxss: ReversePipeline = ({
               )
             });
           }
-
           return Reflect.set(target, p, value, receiver);
         }
       }
     ),
-    function (
+    setCssToHead: function (
       file: Array<string | number[]>,
       _xcInvalid: any,
       info: { path: string }
@@ -90,8 +91,11 @@ export const reverseWxss: ReversePipeline = ({
 
       return function () {};
     },
-    {
+    navigator,
+    window: {
       screen: {}
     }
-  );
+  });
+
+  vm.runInContext(wxssContent, context);
 };

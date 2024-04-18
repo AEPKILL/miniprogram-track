@@ -10,6 +10,10 @@ export const reverseAppJson: ReversePipeline = ({
   appConfig,
   restoreBundle
 }) => {
+  if (!appConfig) {
+    return;
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { subPackages, pages, page, entryPagePath, ...rest } = appConfig;
 

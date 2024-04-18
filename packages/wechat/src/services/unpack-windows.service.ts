@@ -41,7 +41,6 @@ export class UnpackWindowsService implements IUnPack {
         wxapkgPaths.push(path.join(miniprogramDir, it));
       }
     }
-    console.log("restore code", restoreCode);
     for (const it of wxapkgPaths) {
       const wxapkg = new WxapkgUnpack({ pkgPath: it, appid });
       const wxapkgBundle = wxapkg.unpack();

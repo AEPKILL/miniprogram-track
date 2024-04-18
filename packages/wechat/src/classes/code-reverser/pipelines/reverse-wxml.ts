@@ -1,26 +1,18 @@
 /**
  * @overview
  * @author AEPKILL
- * @created 2024-04-15 22:00:38
+ * @created 2024-04-16 10:58:42
  */
 
 import { ReversePipeline } from "../_type";
-import * as babel from "@babel/core";
-import traverse from "@babel/traverse";
+import { WxmlCodeParser } from "@/classes/wxml-code-parser";
 
-export const reverseWxml: ReversePipeline = ({ originalBundle }) => {
-  const appService = originalBundle.get("app-service.js");
-  if (!appService) {
-    console.warn("app-service.js not found, skip reverse javascript source");
+export const reverseWxml: ReversePipeline = ({ appWxssParsed }) => {
+  if (!appWxssParsed) {
     return;
   }
 
-  const appServiceContent = appService.buffer.toString();
-  const ast = babel.parse(appServiceContent)!;
+  const wxmlCodeParser = new WxmlCodeParser();
 
-  traverse(ast, {
-    CallExpression(path) {
-      console.log(path);
-    }
-  });
+  console.log(wxmlCodeParser.parse(appWxssParsed));
 };

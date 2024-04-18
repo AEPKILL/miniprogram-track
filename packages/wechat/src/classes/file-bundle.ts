@@ -20,6 +20,8 @@ function addRootPrefix(path: string): string {
 export class FileBundle {
   #files: Record<string, BundleFile> = {};
 
+  constructor(readonly name: string) {}
+
   get files(): Record<string, BundleFile> {
     return this.#files;
   }
@@ -45,7 +47,7 @@ export class FileBundle {
   }
 
   clone(): FileBundle {
-    const Bundle = new FileBundle();
+    const Bundle = new FileBundle(this.name);
     for (const file of this.filesList) {
       Bundle.append(file);
     }
@@ -66,4 +68,6 @@ export class FileBundle {
       await fs.writeFile(filePath, file.buffer);
     }
   }
+
+  static readonly addRootPrefix = addRootPrefix;
 }

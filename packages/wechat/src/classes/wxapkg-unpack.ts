@@ -7,6 +7,7 @@ import fs from "fs-extra";
 import { pbkdf2Sync, createDecipheriv } from "crypto";
 import { Offset } from "./offset";
 import { FileBundle } from "./file-bundle";
+import path from "path";
 
 export interface WxapkgFileHeader {
   firstMask: number;
@@ -59,21 +60,21 @@ export class WxapkgUnpack {
     const isValid =
       header.firstMask == WxapkgUnpack.pkgFirstMaskConst &&
       header.lastMark == WxapkgUnpack.pkgLastMaskConst;
-    const Bundle = new FileBundle();
+    const bundle = new FileBundle(path.parse(this.pkgPath).name);
 
     if (!isValid) {
       throw new Error(`${this.pkgPath} 不是一个有效的 wxapkg 文件`);
     }
 
     for (const chunk of metadata.chunks) {
-      Bundle.append({
+      bundle.append({
         path: chunk.name,
         buffer: this.buffer.subarray(chunk.offset, chunk.offset + chunk.size),
         size: chunk.size
       });
     }
 
-    return Bundle;
+    return bundle;
   }
 
   static readonly pkgFirstMaskConst = 0xbe;
