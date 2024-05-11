@@ -8,13 +8,20 @@ import * as babel from "@babel/core";
 import generate from "@babel/generator";
 import traverse from "@babel/traverse";
 
-export type WxmlRenderFunctionRecord = Record<
-  string,
-  {
-    renderCode: string;
-    opsCode: string;
-  }
->;
+export type WxmlRenderInfoRecord = Record<string, WxmlRenderInfo>;
+
+export type WxmlRenderInfo = {
+  renderFunctionName: string;
+  renderFunctionCode: string;
+  opsFunctionName: string;
+  opsFunctionCode: string;
+  opsArray: OpsArray;
+  xArray: string[];
+  defines: Record<string, Record<string, any>>;
+  entrys: Record<string, any>;
+  fileName: string;
+  templateName?: string;
+};
 
 export type FunctionName = string;
 export type FunctionRecord = Record<
@@ -24,9 +31,11 @@ export type FunctionRecord = Record<
   }
 >;
 
+export type OpsArray = Array<string | number | OpsArray>;
+
 export class WxmlCodeParser {
-  parse(ast: babel.ParseResult): WxmlRenderFunctionRecord {
-    let wxmlRecord: WxmlRenderFunctionRecord = {};
+  parse(ast: babel.ParseResult): WxmlRenderInfoRecord {
+    let wxmlRecord: WxmlRenderInfoRecord = {};
 
     traverse(ast, {
       AssignmentExpression: (path) => {
@@ -48,16 +57,40 @@ export class WxmlCodeParser {
 
   getWxmRenderFunctionRecordInScope(
     scopePath: babel.NodePath
-  ): WxmlRenderFunctionRecord {
-    const wxmlRecord: WxmlRenderFunctionRecord = {};
+  ): WxmlRenderInfoRecord {
+    const wxmlRecord: WxmlRenderInfoRecord = {};
     const xArray = this.getXArrayInScope(scopePath);
     const mFunctionRecord = this.getMFunctionRecordInScope(scopePath);
     const opsFunctionRecord = this.getOpsFunctionRecord(scopePath);
-    const defined = new Set<number | string>();
+    const defines: Record<string, Record<string, any>> = {};
+    const entrys: Record<string, any> = {};
+
+    function getEntrysArrayElement(
+      element: babel.types.Expression | babel.types.PatternLike
+    ): unknown {
+      if (element.type === "Identifier") {
+        return element.name;
+      }
+      if (element.type === "ArrayExpression") {
+        return element.elements.map((it2) => {
+          if (it2?.type === "MemberExpression") {
+            if (
+              it2.object.type === "Identifier" &&
+              it2.object.name === "x" &&
+              it2.property.type === "NumericLiteral"
+            ) {
+              return xArray[it2.property.value];
+            }
+          }
+          return "getEntrysArrayElement: unknown of  elements";
+        });
+      }
+      return "getEntrysArrayElement: unknown";
+    }
 
     scopePath.traverse({
       AssignmentExpression: (path) => {
-        // _d[x[0]]['xxxxxxx'] = function() {}
+        // d_[x[0]]['xxxxxxx'] = function() {}
         if (
           path.node.left.type === "MemberExpression" &&
           path.node.left.object.type === "MemberExpression" &&
@@ -73,21 +106,40 @@ export class WxmlCodeParser {
               .property as babel.types.NumericLiteral
           ).value;
           const fileName = xArray[index];
+          const renderFunctionName = `_x${index}`;
+          const templateName = (
+            path.node.left.property as babel.types.StringLiteral
+          ).value;
 
           path.node.right.id = {
             type: "Identifier",
-            name: `_x${index}`
+            name: renderFunctionName
           };
 
-          const renderCode = generate(path.node.right).code;
-          const opsName = this.getOpsFunctionNameByCode(renderCode);
-          const opsCode = opsFunctionRecord[opsName]?.code;
+          const renderFunctionCode = generate(path.node.right).code;
+          const opsFunctionName =
+            this.getOpsFunctionNameByRenderCode(renderFunctionCode);
+          const opsFunctionCode = opsFunctionRecord[opsFunctionName]?.code;
 
-          if (fileName && opsName && opsCode && !defined.has(index)) {
-            defined.add(index);
+          defines[fileName] = {
+            ...defines[fileName]
+          };
+          defines[fileName][
+            (path.node.left.property as babel.types.StringLiteral).value
+          ] = renderFunctionName;
+
+          if (fileName && opsFunctionName && opsFunctionCode) {
             wxmlRecord[fileName] = {
-              renderCode,
-              opsCode
+              templateName,
+              fileName,
+              renderFunctionName,
+              renderFunctionCode,
+              opsFunctionName,
+              opsFunctionCode,
+              xArray,
+              defines,
+              entrys,
+              opsArray: this.getOpsArray(opsFunctionName, opsFunctionCode)
             };
           }
         }
@@ -106,22 +158,48 @@ export class WxmlCodeParser {
             path.node.left.property.property as babel.types.NumericLiteral
           ).value;
           const fileName = xArray[index];
-          const renderProperty = (path.node.right.properties || []).find(
-            (it) =>
-              ((it as babel.types.Property).key as babel.types.Identifier)
-                .name === "f"
+          const properties = (path.node.right.properties ||
+            []) as babel.types.ObjectProperty[];
+          const renderProperty = properties.find(
+            (it) => (it.key as babel.types.Identifier).name === "f"
           ) as babel.types.Property;
+          defines[fileName] = {
+            ...defines[fileName]
+          };
 
-          if (renderProperty && fileName && !defined.has(index)) {
+          entrys[fileName] = {
+            ...entrys[fileName]
+          };
+
+          for (const it of properties) {
+            entrys[fileName][(it.key as babel.types.Identifier).name] =
+              getEntrysArrayElement(it.value);
+          }
+
+          if (
+            renderProperty &&
+            fileName &&
+            !(defines[fileName] && Object.keys(defines[fileName]).length)
+          ) {
             if (renderProperty.value?.type === "Identifier") {
               const renderFunctionName = renderProperty.value.name;
-              const renderCode = mFunctionRecord[renderFunctionName]?.code;
-              const opsName = this.getOpsFunctionNameByCode(renderCode);
-              const opsCode = opsFunctionRecord[opsName].code;
-              if (renderCode && opsCode) {
+              const renderFunctionCode =
+                mFunctionRecord[renderFunctionName]?.code;
+              const opsFunctionName =
+                this.getOpsFunctionNameByRenderCode(renderFunctionCode);
+              const opsFunctionCode = opsFunctionRecord[opsFunctionName].code;
+
+              if (renderFunctionCode && opsFunctionCode) {
                 wxmlRecord[fileName] = {
-                  renderCode,
-                  opsCode
+                  fileName,
+                  renderFunctionName,
+                  renderFunctionCode,
+                  opsFunctionName,
+                  xArray,
+                  defines,
+                  entrys,
+                  opsFunctionCode: opsFunctionCode,
+                  opsArray: this.getOpsArray(opsFunctionName, opsFunctionCode)
                 };
               }
             }
@@ -198,7 +276,7 @@ export class WxmlCodeParser {
     return renderFunctionRecord;
   }
 
-  getOpsFunctionNameByCode(code: string): string {
+  getOpsFunctionNameByRenderCode(code: string): string {
     let opsFunctionName = "";
 
     traverse(babel.parse(code)!, {
@@ -217,5 +295,16 @@ export class WxmlCodeParser {
     });
 
     return opsFunctionName;
+  }
+
+  getOpsArray(opsFunctionName: string, opsFunctionCode: string): OpsArray {
+    const opsFunction = new Function(
+      "__WXML_GLOBAL__",
+      `${opsFunctionCode}; return ${opsFunctionName}();`
+    );
+
+    return opsFunction({
+      ops_cached: {}
+    });
   }
 }

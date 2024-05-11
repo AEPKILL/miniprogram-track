@@ -34,7 +34,6 @@ function makeup(file: Array<string | any[]>, opt: MarkupOptions): string {
   return res.replace(/body\s*{/g, "page{");
 }
 
-// TODO  有点慢，后续改为从 wxssParsed 中提取
 export const reverseWxss: ReversePipeline = ({
   originalBundle,
   restoreBundle

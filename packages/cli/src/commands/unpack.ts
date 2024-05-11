@@ -10,6 +10,7 @@ import ora from "ora";
 import { CommandCommonOptions } from "@/clime/command-common-options.js";
 import { RegisterService } from "@/decorators/register-service.decorator";
 import { container, IUnPack, UnpackOptions } from "@miniprogram-track/shared";
+import chalk from "chalk";
 
 class UnpackCommandOptions
   extends CommandCommonOptions
@@ -56,10 +57,26 @@ export default class UnpackCommand extends Command {
   @RegisterService
   @metadata
   async execute(options: UnpackCommandOptions): Promise<any> {
-    const { pkgPath, miniprogramDir } = options;
+    const { pkgPath, miniprogramDir, restoreCode } = options;
 
     if (!pkgPath && !miniprogramDir) {
       throw new ExpectedError(`请输入  --pkgPath 或 --miniprogramDir 参数`);
+    }
+
+    if (pkgPath && miniprogramDir) {
+      console.warn(
+        chalk.yellow(
+          `--pkgPath 和 --miniprogramDir 参数同时传入，优先使用 --miniprogramDir 参数`
+        )
+      );
+    }
+
+    if (restoreCode) {
+      console.warn(
+        chalk.yellow(
+          `--restoreCode 选项尚处于实验性阶段，若有问题请及时反馈 https://github.com/AEPKILL/miniprogram-track/issues/new `
+        )
+      );
     }
 
     const spinner = ora({

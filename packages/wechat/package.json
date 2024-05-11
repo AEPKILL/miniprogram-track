@@ -24,6 +24,7 @@
     "@babel/core": "^7.24.4",
     "@babel/generator": "^7.24.4",
     "@babel/traverse": "^7.24.1",
+    "@babel/types": "^7.24.0",
     "@miniprogram-track/shared": "workspace:^",
     "@types/babel__core": "^7.20.5",
     "@types/babel__generator": "^7.6.8",

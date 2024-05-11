@@ -17,7 +17,7 @@ export const reverseOthers: ReversePipeline = ({
   );
 
   for (const it of originalBundle.filesList) {
-    if (!specialBundleFiles.includes(it.path)) {
+    if (true || !specialBundleFiles.includes(it.path)) {
       restoreBundle.append(it);
     }
   }

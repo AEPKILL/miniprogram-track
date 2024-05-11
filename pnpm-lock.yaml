@@ -109,6 +109,9 @@ importers:
       '@babel/traverse':
         specifier: ^7.24.1
         version: 7.24.1
+      '@babel/types':
+        specifier: ^7.24.0
+        version: 7.24.0
       '@miniprogram-track/shared':
         specifier: workspace:^
         version: link:../shared

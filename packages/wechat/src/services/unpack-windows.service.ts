@@ -31,10 +31,14 @@ export class UnpackWindowsService implements IUnPack {
         throw new Error("pkgPath is required");
       }
       if (!fs.existsSync(pkgPath)) {
-        throw new Error("pkgPath is not exists");
+        throw new Error(`pkgPath ${pkgPath} 不存在`);
       }
       wxapkgPaths.push(pkgPath);
     } else {
+      if (!fs.existsSync(miniprogramDir)) {
+        throw new Error(`miniprogramDir "${miniprogramDir}" 不存在`);
+      }
+
       for (const it of globSync(["**/*.wxapkg"], {
         cwd: miniprogramDir
       })) {
